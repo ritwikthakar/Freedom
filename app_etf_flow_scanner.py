@@ -94,3 +94,19 @@ if st.button("Run ETF scanner", type="primary", disabled=not ready):
             st.error(f"Could not run ETF scanner: {exc}")
 else:
     st.info("Upload all 7 ETF scanner files, then click Run.")
+
+import traceback
+import numpy as np
+
+if st.button("Run ETF scanner"):
+    try:
+        results = run_etf_scanner()
+
+        results = results.replace([np.inf, -np.inf], np.nan)
+        results = results.fillna(0)
+
+        st.dataframe(results)
+
+    except Exception as e:
+        st.error(f"Could not run ETF scanner: {type(e).__name__}: {e}")
+        st.code(traceback.format_exc())
