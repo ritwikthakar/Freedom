@@ -64,16 +64,23 @@ def show_downloads(outdir: str) -> None:
                 st.download_button(f"Download {fname}", f.read(), file_name=fname, mime=mime)
 
 
-if st.button("Run ETF scanner", type="primary", disabled=not ready):
-    with tempfile.TemporaryDirectory() as tmpdir:
-        outdir = os.path.join(tmpdir, "output")
-        os.makedirs(outdir, exist_ok=True)
-        save_uploads(tmpdir)
-        try:
-            ranked = build_scanner(tmpdir, outdir)
-            st.subheader("Ranked ETF scanner")
-            st.dataframe(ranked, use_container_width=True)
+import traceback
+import numpy as np
 
+if st.button("Run ETF scanner"):
+    try:
+        results = run_etf_scanner()
+
+        results = results.replace([np.inf, -np.inf], np.nan)
+        results = results.fillna(0)
+
+        st.dataframe(results)
+
+    except Exception as e:
+        st.error(f"Could not run ETF scanner: {type(e).__name__}: {e}")
+        st.code(traceback.format_exc())        
+
+        
             tabs = st.tabs(["Bullish", "Bearish", "Vol expansion", "Range candidates", "Downloads"])
             output_files = [
                 "etf_scanner_bullish.csv",
