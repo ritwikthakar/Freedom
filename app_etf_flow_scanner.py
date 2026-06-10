@@ -90,23 +90,10 @@ if st.button("Run ETF scanner", type="primary", disabled=not ready):
                         st.warning(f"{fname} was not created.")
             with tabs[-1]:
                 show_downloads(outdir)
-        except Exception as exc:
-            st.error(f"Could not run ETF scanner: {exc}")
+            except Exception as exc:
+                import traceback
+    
+                st.error(f"Could not run ETF scanner: {type(exc).__name__}: {exc}")
+                st.code(traceback.format_exc())
 else:
     st.info("Upload all 7 ETF scanner files, then click Run.")
-
-import traceback
-import numpy as np
-
-if st.button("Run ETF scanner"):
-    try:
-        results = run_etf_scanner()
-
-        results = results.replace([np.inf, -np.inf], np.nan)
-        results = results.fillna(0)
-
-        st.dataframe(results)
-
-    except Exception as e:
-        st.error(f"Could not run ETF scanner: {type(e).__name__}: {e}")
-        st.code(traceback.format_exc())
