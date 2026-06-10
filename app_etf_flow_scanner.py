@@ -90,10 +90,10 @@ if st.button("Run ETF scanner", type="primary", disabled=not ready):
                         st.warning(f"{fname} was not created.")
             with tabs[-1]:
                 show_downloads(outdir)
-                except Exception as exc:
-                    import traceback
-        
-                    st.error(f"Could not run ETF scanner: {type(exc).__name__}: {exc}")
-                    st.code(traceback.format_exc())
+        except Exception as exc:
+            import traceback
+
+            st.error(f"Could not run ETF scanner: {type(exc).__name__}: {exc}")
+            st.code(traceback.format_exc())
 else:
     st.info("Upload all 7 ETF scanner files, then click Run.")
