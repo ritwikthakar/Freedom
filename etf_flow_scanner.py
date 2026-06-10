@@ -304,7 +304,7 @@ def merge_all(frames: List[pd.DataFrame]) -> pd.DataFrame:
         out = out.merge(f, on="Symbol", how="outer")
     for col in out.columns:
         if col != "Symbol":
-            out[col] = pd.to_numeric(out[col], errors="ignore")
+            out[col] = pd.to_numeric(out[col], errors="coerce")
     num_cols = out.select_dtypes(include=[np.number]).columns
     out[num_cols] = out[num_cols].fillna(0.0)
     return out
