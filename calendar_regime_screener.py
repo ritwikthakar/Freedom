@@ -235,6 +235,12 @@ with st.sidebar:
         "https://freedom-hdf89xczpjdheb6kuq2qnz.streamlit.app/",
         use_container_width=True
     )
+    
+    st.link_button(
+        "🚀 Option Flow Screener",
+        "https://freedom-4rbsvk5mg32dybsiqwxwna.streamlit.app/",
+        use_container_width=True
+    )
 
 st.subheader("1) Upload Barchart screeners")
 c1, c2 = st.columns(2)
