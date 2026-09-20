@@ -229,6 +229,12 @@ with st.sidebar:
         "https://freedom-fuxffx4ohuuosfojdmffxl.streamlit.app/",
         use_container_width=True
     )
+    
+    st.link_button(
+        "📅 Calendar Spread Regime Screening",
+        "https://freedom-hdf89xczpjdheb6kuq2qnz.streamlit.app/",
+        use_container_width=True
+    )
 
 st.subheader("1) Upload Barchart screeners")
 c1, c2 = st.columns(2)
