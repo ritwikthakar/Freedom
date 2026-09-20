@@ -204,6 +204,31 @@ with st.sidebar:
     st.divider()
     min_score = st.slider("Minimum final score", 0, 100, 55)
     top_n = st.slider("Rows per ranking", 5, 50, 15)
+    st.markdown("### 🔗 Trading Workflow")
+
+    st.link_button(
+        "⚡ Cheap Convexity Screener",
+        "YOUR_CHEAP_CONVEXITY_APP_URL",
+        use_container_width=True
+    )
+    
+    st.link_button(
+        "🎯 Dealer Positioning",
+        "https://dealerpositioning-n2m58uzu42afb44usojrwe.streamlit.app/",
+        use_container_width=True
+    )
+    
+    st.link_button(
+        "📊 Dealer / GEX Analysis",
+        "https://dealerpositioning-zenvhgc3fs3dcsd9yunvct.streamlit.app/",
+        use_container_width=True
+    )
+    
+    st.link_button(
+        "🔬 Option Analysis",
+        "https://freedom-fuxffx4ohuuosfojdmffxl.streamlit.app/",
+        use_container_width=True
+    )
 
 st.subheader("1) Upload Barchart screeners")
 c1, c2 = st.columns(2)
