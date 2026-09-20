@@ -282,6 +282,36 @@ with st.sidebar:
     st.header("Upload Barchart files")
     call_file = st.file_uploader("Long call calendar CSV", type=["csv"], key="call_file")
     put_file = st.file_uploader("Long put calendar CSV", type=["csv"], key="put_file")
+    st.link_button(
+        "⚡ Convexity Screener",
+        "YOUR_CHEAP_CONVEXITY_APP_URL",
+        use_container_width=True
+    )
+    
+    st.link_button(
+        "🎯 Dealer Positioning",
+        "https://dealerpositioning-n2m58uzu42afb44usojrwe.streamlit.app/",
+        use_container_width=True
+    )
+    
+    st.link_button(
+        "📊 Option Contract Analysis",
+        "https://dealerpositioning-zenvhgc3fs3dcsd9yunvct.streamlit.app/",
+        use_container_width=True
+    )
+    
+    st.link_button(
+        "🔬 Calendar Spread Regime Screening",
+        "https://freedom-fuxffx4ohuuosfojdmffxl.streamlit.app/",
+        use_container_width=True
+    )
+    
+    st.link_button(
+        "📅 Calendar Spread Screener",
+        "https://freedom-hdf89xczpjdheb6kuq2qnz.streamlit.app/",
+        use_container_width=True
+    )
+
 
     st.header("Filters")
     top_n = st.slider("Top setups per category", 3, 25, 5)
