@@ -207,7 +207,7 @@ with st.sidebar:
     st.markdown("### 🔗 Trading Workflow")
 
     st.link_button(
-        "⚡ Cheap Convexity Screener",
+        "⚡ Convexity Screener",
         "YOUR_CHEAP_CONVEXITY_APP_URL",
         use_container_width=True
     )
@@ -219,13 +219,13 @@ with st.sidebar:
     )
     
     st.link_button(
-        "📊 Dealer / GEX Analysis",
+        "📊 Option Contract Analysis",
         "https://dealerpositioning-zenvhgc3fs3dcsd9yunvct.streamlit.app/",
         use_container_width=True
     )
     
     st.link_button(
-        "🔬 Option Analysis",
+        "🔬 Calendar Spread Regime Screening",
         "https://freedom-fuxffx4ohuuosfojdmffxl.streamlit.app/",
         use_container_width=True
     )
