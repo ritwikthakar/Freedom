@@ -24,6 +24,41 @@ with st.sidebar:
     st.header("Settings")
     top = st.number_input("Top rows per output", min_value=5, max_value=200, value=50, step=5)
     min_premium = st.number_input("Minimum total premium filter", min_value=0.0, value=0.0, step=10000.0)
+    st.link_button(
+        "⚡ Convexity Screener",
+        "YOUR_CHEAP_CONVEXITY_APP_URL",
+        use_container_width=True
+    )
+    
+    st.link_button(
+        "🎯 Dealer Positioning",
+        "https://dealerpositioning-n2m58uzu42afb44usojrwe.streamlit.app/",
+        use_container_width=True
+    )
+    
+    st.link_button(
+        "📊 Option Contract Analysis",
+        "https://dealerpositioning-zenvhgc3fs3dcsd9yunvct.streamlit.app/",
+        use_container_width=True
+    )
+    
+    st.link_button(
+        "🔬 Calendar Spread Regime Screening",
+        "https://freedom-fuxffx4ohuuosfojdmffxl.streamlit.app/",
+        use_container_width=True
+    )
+    
+    st.link_button(
+        "📅 Calendar Spread Screener",
+        "https://freedom-hdf89xczpjdheb6kuq2qnz.streamlit.app/",
+        use_container_width=True
+    )
+    
+    st.link_button(
+        "🚀 Option Flow Screener",
+        "https://freedom-4rbsvk5mg32dybsiqwxwna.streamlit.app/",
+        use_container_width=True
+    )
 
 flow_file = st.file_uploader("1) options-flow-*.csv", type="csv")
 unusual_file = st.file_uploader("2) unusual-stock-options-activity-*.csv", type="csv")
