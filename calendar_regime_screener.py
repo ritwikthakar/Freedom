@@ -231,7 +231,7 @@ with st.sidebar:
     )
     
     st.link_button(
-        "📅 Calendar Spread Regime Screening",
+        "📅 Calendar Spread Screener",
         "https://freedom-hdf89xczpjdheb6kuq2qnz.streamlit.app/",
         use_container_width=True
     )
