@@ -284,7 +284,7 @@ with st.sidebar:
     put_file = st.file_uploader("Long put calendar CSV", type=["csv"], key="put_file")
     st.link_button(
         "⚡ Convexity Screener",
-        "YOUR_CHEAP_CONVEXITY_APP_URL",
+        "https://convexity-bqhpmsmhg5lvruwjltk6bl.streamlit.app/",
         use_container_width=True
     )
     
