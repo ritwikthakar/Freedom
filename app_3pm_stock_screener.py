@@ -26,7 +26,7 @@ with st.sidebar:
     min_premium = st.number_input("Minimum total premium filter", min_value=0.0, value=0.0, step=10000.0)
     st.link_button(
         "⚡ Convexity Screener",
-        "YOUR_CHEAP_CONVEXITY_APP_URL",
+        "https://convexity-bqhpmsmhg5lvruwjltk6bl.streamlit.app/",
         use_container_width=True
     )
     
