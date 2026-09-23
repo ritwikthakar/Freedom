@@ -114,7 +114,10 @@ if st.button("Run 3PM stock screener", type="primary", disabled=not ready):
             st.subheader("Ranked scanner")
             st.dataframe(ranked, use_container_width=True)
 
-            tabs = st.tabs(["Bullish", "Bearish", "Vol expansion", "Earnings convexity", "Put speculation", "Put hedging", "Downloads"])
+            tabs = st.tabs([
+                "Bullish", "Bearish", "Vol expansion", "Earnings convexity",
+                "Put speculation", "Put hedging", "🔥 Research Now", "Downloads"
+            ])
             output_files = [
                 "3pm_screener_bullish.csv",
                 "3pm_screener_bearish.csv",
@@ -123,14 +126,158 @@ if st.button("Run 3PM stock screener", type="primary", disabled=not ready):
                 "3pm_screener_put_speculation.csv",
                 "3pm_screener_put_hedging.csv",
             ]
-            for tab, fname in zip(tabs[:-1], output_files):
+
+            for tab, fname in zip(tabs[:6], output_files):
                 with tab:
                     path = os.path.join(outdir, fname)
                     if os.path.exists(path):
                         st.dataframe(pd.read_csv(path), use_container_width=True)
                     else:
                         st.warning(f"{fname} was not created.")
-            with tabs[-1]:
+
+            with tabs[6]:
+                st.subheader("🔥 Research Now")
+                st.caption(
+                    "High-conviction shortlist requiring independent "
+                    "Flow + Unusual Activity + OI confirmation."
+                )
+
+                c1, c2, c3, c4, c5 = st.columns(5)
+                with c1:
+                    research_setup = st.number_input("Min Setup", 0.0, 100.0, 65.0, 1.0)
+                with c2:
+                    research_flow = st.number_input("Min Flow", 0.0, 100.0, 85.0, 1.0)
+                with c3:
+                    research_unusual = st.number_input("Min Unusual", 0.0, 100.0, 85.0, 1.0)
+                with c4:
+                    research_oi = st.number_input("Min OI Accum.", 0.0, 100.0, 65.0, 1.0)
+                with c5:
+                    research_iv = st.number_input("IV Expansion Flag", 0.0, 100.0, 85.0, 1.0)
+
+                required = [
+                    "setup_score", "flow_score", "unusual_score",
+                    "oi_accumulation_score"
+                ]
+                missing = [col for col in required if col not in ranked.columns]
+
+                if missing:
+                    st.warning(
+                        "Research Now cannot be calculated. Missing columns: "
+                        + ", ".join(missing)
+                    )
+                else:
+                    research = ranked.copy()
+
+                    numeric_cols = [
+                        "setup_score", "flow_score", "unusual_score",
+                        "oi_accumulation_score", "iv_expansion_score",
+                        "flow_direction", "unusual_direction"
+                    ]
+                    for col in numeric_cols:
+                        if col in research.columns:
+                            research[col] = pd.to_numeric(research[col], errors="coerce")
+
+                    research = research[
+                        (research["setup_score"] >= research_setup)
+                        & (research["flow_score"] >= research_flow)
+                        & (research["unusual_score"] >= research_unusual)
+                        & (research["oi_accumulation_score"] >= research_oi)
+                    ].copy()
+
+                    if "iv_expansion_score" in research.columns:
+                        research["expansion_confirmed"] = (
+                            research["iv_expansion_score"] >= research_iv
+                        )
+
+                    if {"flow_direction", "unusual_direction"}.issubset(research.columns):
+                        research["direction_agreement"] = (
+                            (research["flow_direction"] == research["unusual_direction"])
+                            & research["flow_direction"].isin([-1, 1])
+                        )
+
+                    def classify_research(row):
+                        expansion = row.get("iv_expansion_score", 0) >= research_iv
+                        agreement = bool(row.get("direction_agreement", False))
+                        bias = str(row.get("bias", "")).lower()
+
+                        if expansion and agreement:
+                            if bias == "bullish":
+                                return "🔥 Bullish Expansion"
+                            if bias == "bearish":
+                                return "🔥 Bearish Expansion"
+                            return "🔥 Expansion"
+                        if agreement:
+                            if bias == "bullish":
+                                return "🟢 Bullish Flow"
+                            if bias == "bearish":
+                                return "🔴 Bearish Flow"
+                            return "Directional Flow"
+                        if expansion:
+                            return "⚡ Vol Expansion"
+                        return "👀 Watch"
+
+                    research["research_type"] = research.apply(classify_research, axis=1)
+
+                    sort_cols = [
+                        col for col in [
+                            "setup_score", "flow_score", "unusual_score",
+                            "oi_accumulation_score", "iv_expansion_score"
+                        ] if col in research.columns
+                    ]
+                    research = research.sort_values(
+                        sort_cols, ascending=[False] * len(sort_cols)
+                    )
+
+                    m1, m2, m3, m4 = st.columns(4)
+                    m1.metric("Research Candidates", len(research))
+
+                    if "expansion_confirmed" in research.columns:
+                        m2.metric(
+                            "Expansion Confirmed",
+                            int(research["expansion_confirmed"].sum())
+                        )
+                    if "direction_agreement" in research.columns:
+                        m3.metric(
+                            "Directional Agreement",
+                            int(research["direction_agreement"].sum())
+                        )
+                    if "bias" in research.columns:
+                        m4.metric(
+                            "Bearish",
+                            int(
+                                (research["bias"].astype(str).str.lower() == "bearish").sum()
+                            )
+                        )
+
+                    preferred_columns = [
+                        "rank", "Symbol", "bias", "research_type",
+                        "setup_score", "flow_score", "unusual_score",
+                        "oi_accumulation_score", "iv_expansion_score",
+                        "expansion_confirmed", "direction_agreement",
+                        "preferred_structure", "confirmation",
+                        "total_premium", "net_signed_premium"
+                    ]
+                    display_columns = [
+                        col for col in preferred_columns if col in research.columns
+                    ]
+                    remaining = [
+                        col for col in research.columns if col not in display_columns
+                    ]
+
+                    st.dataframe(
+                        research[display_columns + remaining],
+                        use_container_width=True,
+                        hide_index=True
+                    )
+
+                    st.download_button(
+                        "⬇️ Download Research Now",
+                        research.to_csv(index=False).encode("utf-8"),
+                        file_name="3pm_screener_research_now.csv",
+                        mime="text/csv"
+                    )
+
+            with tabs[7]:
                 show_downloads(outdir)
         except Exception as exc:
             st.error(f"Could not run screener: {exc}")
