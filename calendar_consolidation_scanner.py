@@ -136,23 +136,51 @@ def score_consolidation(d: pd.DataFrame) -> pd.DataFrame:
     x.loc[x["Abs Moneyness %"] > 4, "Flag"] += "Too far from spot for consolidation; "
     x.loc[x["Abs Delta"] > 0.30, "Flag"] += "Too directional; "
     x.loc[x["Short DTE"] < 1, "Flag"] += "Short leg too close to expiry; "
+    x.loc[x["Short Premium / Debit"] > 3.0, "Flag"] += "Extreme premium/debit ratio - inspect liquidity/spread; "
 
     # Soft penalties rather than hard deletion, so diagnostics remain visible.
+    # IV/HV regime modifier: balanced volatility should be required for the
+    # strongest pure-consolidation candidates rather than being only a small
+    # weighted input.
+    ivhv_penalty = np.select(
+        [
+            x["IV/HV"] < 0.75,
+            x["IV/HV"].between(0.75, 0.90, inclusive="left"),
+            x["IV/HV"].between(1.20, 1.35, inclusive="right"),
+            x["IV/HV"].between(1.35, 1.50, inclusive="right"),
+            x["IV/HV"] > 1.50,
+        ],
+        [10, 3, 3, 7, 12],
+        default=0,
+    )
+    x["IV/HV Regime Penalty"] = ivhv_penalty
+
     penalty = (
         np.where(x["IV Skew"] < 0, 15, 0)
         + np.where(x["Abs Moneyness %"] > 4, 20, 0)
         + np.where(x["Abs Delta"] > 0.30, 20, 0)
         + np.where(x["DTE Gap"] <= 0, 50, 0)
         + np.where(x["Net Vega"] <= 0, 30, 0)
+        + ivhv_penalty
     )
     x["Preliminary Score"] = (x["Consolidation Score"] - penalty).clip(0, 100)
 
-    # Research priority, not a recommendation to enter.
+    # Research priority, not a recommendation to enter. A+ requires both a
+    # high score and all core consolidation conditions to be satisfied.
     x["Validation Priority"] = pd.cut(
         x["Preliminary Score"],
         bins=[-np.inf, 60, 70, 80, 88, np.inf],
-        labels=["LOW", "WATCH", "B", "A", "A+"],
+        labels=["LOW", "WATCH", "B", "A", "A"],
     ).astype(str)
+    aplus = (
+        (x["Preliminary Score"] >= 88)
+        & (x["Abs Moneyness %"] <= 1.0)
+        & (x["Abs Delta"] <= 0.10)
+        & (x["IV/HV"].between(0.85, 1.30, inclusive="both"))
+        & (x["IV Skew"] > 0)
+        & (x["DTE Gap"] >= 7)
+    )
+    x.loc[aplus, "Validation Priority"] = "A+"
 
     # Hybrid tag: consolidation plus useful positive-vega characteristics.
     x["Play Type"] = "CONSOLIDATION"
@@ -313,7 +341,7 @@ with tabs[3]:
         "Symbol", "Type", "Leg1 Strike", "ATM Score", "Delta Neutral Score",
         "Term Skew Score", "IV/HV Balance Score", "Short Premium Score",
         "DTE Gap Score", "Vega Efficiency Score", "Consolidation Score",
-        "Preliminary Score", "Flag",
+        "IV/HV Regime Penalty", "Preliminary Score", "Flag",
     ]
     diag = ranked[diag_cols].copy()
     score_cols = [c for c in diag.columns if "Score" in c]
@@ -335,6 +363,12 @@ with st.expander("Scoring model"):
 The score intentionally does **not** use GEX, DEX, expected move, gamma flip,
 call wall, put wall, or GEX-by-strike. Those belong to **Stage 2 dealer
 validation** after the preliminary scanner has reduced the universe.
+
+**Additional guardrails**
+
+- IV/HV outside the preferred consolidation zone receives a regime penalty: 1.20–1.35 = -3, 1.35–1.50 = -7, >1.50 = -12; 0.75–0.90 = -3 and <0.75 = -10.
+- **A+** requires score >=88, |moneyness| <=1%, |delta| <=0.10, IV/HV 0.85–1.30, positive IV skew, and DTE gap >=7.
+- Short-premium/debit >3.0 is flagged for manual liquidity/bid-ask inspection because very small debits can distort the ratio.
 
 **A/A+ = research priority, not an entry recommendation.**
 """)
