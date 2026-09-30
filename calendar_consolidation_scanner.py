@@ -167,11 +167,23 @@ def score_consolidation(d: pd.DataFrame) -> pd.DataFrame:
 
     # Research priority, not a recommendation to enter. A+ requires both a
     # high score and all core consolidation conditions to be satisfied.
+    # Base research priority. Labels must be unique when pd.cut(ordered=True).
     x["Validation Priority"] = pd.cut(
         x["Preliminary Score"],
-        bins=[-np.inf, 60, 70, 80, 88, np.inf],
-        labels=["LOW", "WATCH", "B", "A", "A"],
+        bins=[-np.inf, 60, 70, 80, np.inf],
+        labels=["LOW", "WATCH", "B", "A"],
     ).astype(str)
+
+    # A+ is a strict confluence override, not simply another score bucket.
+    a_plus = (
+        (x["Preliminary Score"] >= 88)
+        & (x["Abs Moneyness %"] <= 1.0)
+        & (x["Abs Delta"] <= 0.10)
+        & (x["IV/HV"].between(0.85, 1.30, inclusive="both"))
+        & (x["IV Skew"] > 0)
+        & (x["DTE Gap"] >= 7)
+    )
+    x.loc[a_plus, "Validation Priority"] = "A+"
     aplus = (
         (x["Preliminary Score"] >= 88)
         & (x["Abs Moneyness %"] <= 1.0)
